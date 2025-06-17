@@ -5,12 +5,7 @@ import 'package:hidi/router.dart';
 
 void main() async {
   await dotenv.load();
-  runApp(
-    ProviderScope(
-      child: MyApp(),
-    ),
-  );
-
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
@@ -18,8 +13,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp.router(
-      routerConfig: ref.read(routerProvider),
-    );
+    return MaterialApp.router(routerConfig: ref.read(routerProvider));
   }
 }
