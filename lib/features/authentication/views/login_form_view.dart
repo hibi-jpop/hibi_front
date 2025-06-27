@@ -15,8 +15,9 @@ class LoginFormView extends ConsumerStatefulWidget {
 }
 
 class _LoginFormViewState extends ConsumerState<LoginFormView> {
-  late final TextEditingController _EmailController = TextEditingController();
-  late final TextEditingController _LoginController = TextEditingController();
+  late final TextEditingController _emailController = TextEditingController();
+  late final TextEditingController _passwordController =
+      TextEditingController();
 
   Map<String, dynamic> form = {};
   bool _isButtonDisable = true;
@@ -28,12 +29,13 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
 
   @override
   void dispose() {
-    _nicknameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  bool _isNicknameValid() {
-    return true;
+  void _onClearTap(TextEditingController controller) {
+    controller.clear();
   }
 
   void _isButtonValid() {
@@ -54,52 +56,54 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
       appBar: AppBar(title: Text("HIBI")),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: Sizes.size20),
-        child: Column(
-          children: [
-            Text("LoginForm"),
-            TextField(
-              controller: _EmailController,
-              onChanged: (value) => _isButtonValid(),
-              decoration: InputDecoration(
-                hintText: "Email",
-                // errorText:  ,
-                suffix: GestureDetector(
-                  onTap: _onClearTap,
-                  child: const FaIcon(FontAwesomeIcons.circleXmark),
-                ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey.shade400),
+        child: widget(
+          child: Column(
+            children: [
+              Text("LoginForm"),
+              TextField(
+                controller: _emailController,
+                onChanged: (value) => _isButtonValid(),
+                decoration: InputDecoration(
+                  hintText: "Email",
+                  // errorText:  ,
+                  suffix: GestureDetector(
+                    onTap: () => _onClearTap(_emailController),
+                    child: const FaIcon(FontAwesomeIcons.circleXmark),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey.shade400),
+                  ),
                 ),
               ),
-            ),
-
-            GestureDetector(
-              onTap: _isButtonDisable ? null : _onSubmit,
-              child: FractionallySizedBox(
-                widthFactor: 1,
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Sizes.size5),
-                    color:
-                        _isButtonDisable
-                            ? Colors.grey.shade400
-                            : Colors.orange.shade300,
-                  ),
-                  child: AnimatedDefaultTextStyle(
-                    style: TextStyle(
+          
+              GestureDetector(
+                onTap: _isButtonDisable ? null : _onSubmit,
+                child: FractionallySizedBox(
+                  widthFactor: 1,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(Sizes.size5),
                       color:
                           _isButtonDisable
-                              ? Colors.grey.shade300
-                              : Colors.black,
+                              ? Colors.grey.shade400
+                              : Colors.orange.shade300,
                     ),
-                    duration: Duration(milliseconds: 300),
-                    child: Text("next", textAlign: TextAlign.center),
+                    child: AnimatedDefaultTextStyle(
+                      style: TextStyle(
+                        color:
+                            _isButtonDisable
+                                ? Colors.grey.shade300
+                                : Colors.black,
+                      ),
+                      duration: Duration(milliseconds: 300),
+                      child: Text("next", textAlign: TextAlign.center),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

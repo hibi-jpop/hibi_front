@@ -21,20 +21,26 @@ class AuthenticationRepository {
       "password": password,
       "nickname": nickname,
     };
+
     log(data["email"]);
     log(data["password"]);
     log(data["nickname"]);
 
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': "application/json"},
-        body: jsonEncode(data),
-      );
+    log(jsonEncode(data));
 
-      print(response);
-    } catch (e) {
-      print("Error: ${e}");
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      log('Response: $responseData');
+    } else {
+      log('Failed with status code: ${response.statusCode}');
+      log('Response: ${response.body}');
+      throw Exception('Failed to sign up.');
     }
   }
 
@@ -49,7 +55,7 @@ class AuthenticationRepository {
     try {
       final response = await http.post(
         Uri.parse(url),
-        headers: {'Content-Type': "application/json"},
+        headers: {'Content-Type': "application/json", 'Authorization': ""},
         body: jsonEncode(data),
       );
 
