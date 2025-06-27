@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:hidi/features/authentication/repos/authentication_auth.dart';
+import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 
 class LoginViewmodel extends AsyncNotifier<void> {
   late final AuthenticationRepository _authRepo;
