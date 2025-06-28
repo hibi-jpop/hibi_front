@@ -5,14 +5,17 @@ import 'package:hidi/router.dart';
 
 void main() async {
   await dotenv.load();
-  runApp(ProviderScope(child: MyApp()));
+  runApp(ProviderScope(child: Hidi()));
 }
 
-class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+class Hidi extends ConsumerWidget {
+  const Hidi({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp.router(routerConfig: ref.read(routerProvider));
+    return MaterialApp.router(
+      routerConfig: ref.read(routerProvider),
+      title: 'Hibi',
+    );
   }
 }

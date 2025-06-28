@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hidi/constants/images.dart';
-import 'package:hidi/features/authentication/views/email_view.dart';
-import 'package:hidi/features/authentication/views/login_view.dart';
+import 'package:hidi/features/authentication/views/login_form_view.dart';
+import 'package:hidi/features/authentication/views/sign_up_view.dart';
 
-class SignUpView extends ConsumerWidget {
-  static const String routeName = 'signup';
-  static const String routeURL = '/sign-up';
+class LoginView extends ConsumerWidget {
+  static const routeName = "login";
+  static const routeURL = "/login";
+  const LoginView({super.key});
 
-  const SignUpView({super.key});
-
-  void _onLocalTap(BuildContext context) {
+  void _onLoginTap(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => EmailView()),
+      MaterialPageRoute(builder: (context) => LoginFormView()),
     );
   }
 
@@ -34,16 +33,16 @@ class SignUpView extends ConsumerWidget {
                 Column(
                   children: [
                     TextButton(
-                      onPressed: () => _onLocalTap(context),
+                      onPressed: () => _onLoginTap(context),
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
                       ),
-                      child: Text("이메일 회원가입"),
+                      child: Text("로그인"),
                     ),
                     TextButton(
-                      onPressed: () => context.go(LoginView.routeURL),
-                      child: Text("login"),
+                      onPressed: () => context.go(SignUpView.routeURL),
+                      child: Text("signup"),
                     ),
                   ],
                 ),
@@ -52,15 +51,12 @@ class SignUpView extends ConsumerWidget {
           ),
           Align(
             alignment: Alignment.center,
-            child: Opacity(
-              opacity: 1,
-              child: SizedBox(
-                height: 300,
-                width: 300,
-                child: Image.asset(
-                  Images.hibiUnbackground,
-                  fit: BoxFit.fitHeight,
-                ),
+            child: SizedBox(
+              height: 300,
+              width: 300,
+              child: Image.asset(
+                Images.hibiUnbackground,
+                fit: BoxFit.fitHeight,
               ),
             ),
           ),
