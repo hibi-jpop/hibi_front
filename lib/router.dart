@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hidi/features/authentication/views/login_in_view.dart';
+import 'package:hidi/features/authentication/views/login_view.dart';
 import 'package:hidi/features/authentication/views/sign_up_view.dart';
 import 'package:hidi/features/main-screen/views/main_navigation_view.dart';
 

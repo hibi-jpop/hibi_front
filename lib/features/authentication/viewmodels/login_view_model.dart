@@ -15,7 +15,7 @@ class LoginViewmodel extends AsyncNotifier<void> {
     state = const AsyncValue.loading();
     final form = ref.read(loginForm);
     state = await AsyncValue.guard(() async {
-      await _authRepo.login(form["email"], form["password"]);
+      await _authRepo.postLogin(form["email"], form["password"]);
     });
   }
 }

@@ -2,11 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hidi/constants/images.dart';
+import 'package:hidi/features/authentication/views/login_form_view.dart';
+import 'package:hidi/features/authentication/views/sign_up_view.dart';
 
 class LoginView extends ConsumerWidget {
   static const routeName = "login";
   static const routeURL = "/login";
   const LoginView({super.key});
+
+  void _onLoginTap(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LoginFormView()),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,7 +33,7 @@ class LoginView extends ConsumerWidget {
                 Column(
                   children: [
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () => _onLoginTap(context),
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -32,7 +41,7 @@ class LoginView extends ConsumerWidget {
                       child: Text("로그인"),
                     ),
                     TextButton(
-                      onPressed: () => context.pop(),
+                      onPressed: () => context.go(SignUpView.routeURL),
                       child: Text("signup"),
                     ),
                   ],
@@ -47,7 +56,7 @@ class LoginView extends ConsumerWidget {
               width: 300,
               child: Image.asset(
                 Images.hibiUnbackground,
-                fit: BoxFit.fitHeight
+                fit: BoxFit.fitHeight,
               ),
             ),
           ),

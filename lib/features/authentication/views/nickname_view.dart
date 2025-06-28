@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hidi/constants/sizes.dart';
 import 'package:hidi/features/authentication/viewmodels/signup_view_model.dart';
-import 'package:hidi/features/main-screen/views/main_navigation_view.dart';
 
 class NicknameView extends ConsumerStatefulWidget {
   const NicknameView({super.key});

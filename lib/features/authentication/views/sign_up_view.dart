@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hidi/constants/images.dart';
 import 'package:hidi/features/authentication/views/email_view.dart';
-import 'package:hidi/features/authentication/views/login_in_view.dart';
+import 'package:hidi/features/authentication/views/login_view.dart';
 
 class SignUpView extends ConsumerWidget {
   static const String routeName = 'signup';
@@ -42,7 +42,7 @@ class SignUpView extends ConsumerWidget {
                       child: Text("이메일 회원가입"),
                     ),
                     TextButton(
-                      onPressed: () => context.pushNamed(LoginView.routeName),
+                      onPressed: () => context.go(LoginView.routeURL),
                       child: Text("login"),
                     ),
                   ],
