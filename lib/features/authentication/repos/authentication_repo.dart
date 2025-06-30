@@ -4,28 +4,20 @@ import 'dart:developer';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hidi/features/common/common_repos.dart';
 import 'package:http/http.dart' as http;
+
+typedef TokenFunction = Future<void> Function(String token);
 
 class AuthenticationRepository {
   final baseurl = '${dotenv.env["API_BASE_URL"]}/api/v1/auth';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  String? _accessToken;
 
-  
-
-  Future<bool> isLoggedIn() async {
-    final accessToken = await _secureStorage.read(key: "accessToken");
-    final refreshToken = await _secureStorage.read(key: "refreshToken");
-    if (accessToken == null || refreshToken == null) {
-      return false;
-    }
-    final isLoggedIn = await postReissue(refreshToken);
-    log("$isLoggedIn");
-    if (!isLoggedIn) {
-      return false;
-    }
-    return true;
+  Future<void> initToken() async {
+    _accessToken = await _secureStorage.read(key: "accessToken");
   }
+
+  bool get isLoggedIn => _accessToken != null;
 
   Future<void> postLocalSignup(
     String email,
@@ -57,7 +49,7 @@ class AuthenticationRepository {
     }
   }
 
-  Future<void> postLogin(String email, String password) async {
+  Future<void> postSignin(String email, String password) async {
     final url = "$baseurl/sign-in";
 
     final Map<String, dynamic> data = {"email": email, "password": password};
@@ -70,23 +62,32 @@ class AuthenticationRepository {
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final data = jsonDecode(response.body)["data"];
+      log("$data");
+      log("tokens");
       await tokenSaves(data["accessToken"], data["refreshToken"]);
+      _accessToken = data["accessToken"];
+      log("test");
     }
   }
 
   Future<void> postSignOut(int uid) async {
-    final url = "$baseurl/sign-out?uid=$uid";
-
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {"Content-Type": "application/json"},
-    );
+    final url = "$baseurl/sign-out?memberId=$uid";
+    log("accessToken : ${_accessToken}");
+    // final response = await http.post(
+    //   Uri.parse(url),
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "Authorization": "Bearer $_accessToken",
+    //   },
+    // );
     await tokensClear();
-    CommonRepos.reponsePrint(response);
+    // CommonRepos.reponsePrint(response);
   }
 
-  Future<bool> postReissue(String refreshToken) async {
-    final url = "$baseurl/reissue?refreshToken=$refreshToken";
+  Future<bool> postReissue() async {
+    final _refreshToken = await _secureStorage.read(key: "refreshToken");
+    log("${_refreshToken}");
+    final url = "$baseurl/reissue?refreshToken=$_refreshToken";
 
     final response = await http.post(
       Uri.parse(url),
@@ -99,13 +100,34 @@ class AuthenticationRepository {
   }
 
   Future<void> tokenSaves(String accessToken, String refreshToken) async {
-    await _secureStorage.write(key: "accessToken", value: accessToken);
-    await _secureStorage.write(key: "refreshToken", value: refreshToken);
+    await Future.wait([
+      _secureStorage.write(key: "accessToken", value: accessToken),
+      _secureStorage.write(key: "refreshToken", value: refreshToken),
+    ]);
+    log("finished");
   }
 
   Future<void> tokensClear() async {
+    log("test");
     await _secureStorage.deleteAll();
+    _accessToken = null;
   }
+
+  bool isAccessTokenExpired(String token) {
+    final parts = token.split(".");
+    if (parts.length != 3) return true;
+
+    final payload = jsonDecode(
+      utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+    );
+    final exp = payload["exp"] as int;
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    return exp < now;
+  }
+
+  Future<void> requestWithRetry(TokenFunction requset) async {}
 }
 
-final authRepo = Provider((ref) => AuthenticationRepository());
+final authRepo = Provider<AuthenticationRepository>((ref) {
+  throw UnimplementedError();
+});

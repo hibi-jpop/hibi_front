@@ -53,7 +53,7 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
       "email": formData["email"],
       "password": formData["password"],
     };
-    await ref.read(LoginProvider.notifier).login();
+    await ref.read(LoginProvider.notifier).Signin(context);
   }
 
   @override
