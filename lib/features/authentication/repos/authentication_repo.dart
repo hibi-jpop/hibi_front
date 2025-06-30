@@ -87,6 +87,9 @@ class AuthenticationRepository {
   Future<bool> postReissue() async {
     final _refreshToken = await _secureStorage.read(key: "refreshToken");
     log("${_refreshToken}");
+
+    log("old");
+    log("${_accessToken}");
     final url = "$baseurl/reissue?refreshToken=$_refreshToken";
 
     final response = await http.post(
@@ -94,6 +97,13 @@ class AuthenticationRepository {
       headers: {"Content-Type": "application/json"},
     );
     if (response.statusCode >= 200 && response.statusCode < 300) {
+      final data = jsonDecode(response.body)["data"];
+      final accessToken = data["accessToken"];
+
+      await _secureStorage.write(key: "accessToken", value: accessToken);
+      _accessToken = accessToken;
+      log("new");
+      log("${_accessToken}");
       return true;
     }
     return false;
@@ -125,7 +135,24 @@ class AuthenticationRepository {
     return exp < now;
   }
 
-  Future<void> requestWithRetry(TokenFunction requset) async {}
+  Future<void> requestWithRetry(TokenFunction request) async {
+    final accessToken = _accessToken;
+    if (accessToken == null) {
+      throw Exception("No access token.");
+    }
+    final isExpired = isAccessTokenExpired(accessToken);
+    if (!isExpired) {
+      await request(accessToken);
+    } else {
+      await postReissue();
+      final newaccessToken = _accessToken;
+      if (newaccessToken == null) {
+        throw Exception("No new accessToken.");
+      } else {
+        await request(newaccessToken);
+      }
+    }
+  }
 }
 
 final authRepo = Provider<AuthenticationRepository>((ref) {

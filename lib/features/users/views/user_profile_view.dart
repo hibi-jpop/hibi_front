@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:hidi/features/authentication/viewmodels/login_view_model.dart';
 
 class MyPageView extends ConsumerStatefulWidget {
@@ -10,10 +11,19 @@ class MyPageView extends ConsumerStatefulWidget {
 }
 
 class _MyPageViewState extends ConsumerState<MyPageView> {
+  
+
   void signOut() async {
     await ref.read(LoginProvider.notifier).SignOut(context, 10);
   }
 
+  void reIssue() async {
+    await ref.read(authRepo).postReissue();
+  }
+
+  void getCurrentUser() async {
+    await ref.read(User)
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +35,12 @@ class _MyPageViewState extends ConsumerState<MyPageView> {
               child: TextButton(
                 child: Text("SignOut"),
                 onPressed: () => signOut(),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: TextButton(
+                child: Text("ReIssue"),
+                onPressed: () => reIssue(),
               ),
             ),
           ],
