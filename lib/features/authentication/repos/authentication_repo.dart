@@ -3,11 +3,29 @@ import 'dart:developer';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hidi/features/common/common_repos.dart';
 import 'package:http/http.dart' as http;
 
 class AuthenticationRepository {
   final baseurl = '${dotenv.env["API_BASE_URL"]}/api/v1/auth';
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  
+
+  Future<bool> isLoggedIn() async {
+    final accessToken = await _secureStorage.read(key: "accessToken");
+    final refreshToken = await _secureStorage.read(key: "refreshToken");
+    if (accessToken == null || refreshToken == null) {
+      return false;
+    }
+    final isLoggedIn = await postReissue(refreshToken);
+    log("$isLoggedIn");
+    if (!isLoggedIn) {
+      return false;
+    }
+    return true;
+  }
 
   Future<void> postLocalSignup(
     String email,
@@ -50,7 +68,10 @@ class AuthenticationRepository {
       body: jsonEncode(data),
     );
 
-    CommonRepos.reponsePrint(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final data = jsonDecode(response.body)["data"];
+      await tokenSaves(data["accessToken"], data["refreshToken"]);
+    }
   }
 
   Future<void> postSignOut(int uid) async {
@@ -60,17 +81,30 @@ class AuthenticationRepository {
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
     );
+    await tokensClear();
     CommonRepos.reponsePrint(response);
   }
 
-  Future<void> postReissue(String refreshToken) async {
+  Future<bool> postReissue(String refreshToken) async {
     final url = "$baseurl/reissue?refreshToken=$refreshToken";
 
     final response = await http.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
     );
-    CommonRepos.reponsePrint(response);
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> tokenSaves(String accessToken, String refreshToken) async {
+    await _secureStorage.write(key: "accessToken", value: accessToken);
+    await _secureStorage.write(key: "refreshToken", value: refreshToken);
+  }
+
+  Future<void> tokensClear() async {
+    await _secureStorage.deleteAll();
   }
 }
 

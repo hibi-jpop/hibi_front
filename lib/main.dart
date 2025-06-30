@@ -5,7 +5,6 @@ import 'package:hidi/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await dotenv.load();
   runApp(ProviderScope(child: Hidi()));
 }
