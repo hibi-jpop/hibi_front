@@ -17,7 +17,6 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Map<String, String> formData = {};
-  Map<String, dynamic> form = {};
   bool _isButtonDisable = false;
   bool _isObscure = true;
   @override

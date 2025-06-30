@@ -18,6 +18,7 @@ class AuthenticationRepository {
   }
 
   bool get isLoggedIn => _accessToken != null;
+  String? get accessToken => _accessToken;
 
   Future<void> postLocalSignup(
     String email,

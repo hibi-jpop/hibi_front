@@ -44,7 +44,7 @@ class _NicknameViewState extends ConsumerState<NicknameView> {
     final state = ref.read(signUpForm.notifier).state;
     ref.read(signUpForm.notifier).state = {...state, "nickname": _nickname};
 
-    await ref.read(signUpProvider.notifier).signUp();
+    await ref.read(signUpProvider.notifier).signUp(context);
     // if (mounted) {
     //   context.go('/${MainNavigationView.initialTab}');
     // }
