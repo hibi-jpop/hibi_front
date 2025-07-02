@@ -17,10 +17,10 @@ class UserProfileViewModel extends AsyncNotifier<User> {
     _userRepo = ref.read(userRepo);
     _authRepo = ref.read(authRepo);
     if (_authRepo.isLoggedIn) {
-      final accessToken = _authRepo.accessToken;
-      final user = await _userRepo.getCurrentUser(accessToken!);
+      final user = await _authRepo.requestWithRetry(
+        (accessToken) => _userRepo.getCurrentUser(accessToken),
+      );
       return user;
-      // final user = await _authRepo.requestWithRetry((accessToken) => _userRepo.getCurrentUser(accessToken))
     }
     return User.empty();
   }

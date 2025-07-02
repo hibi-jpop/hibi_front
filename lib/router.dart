@@ -9,8 +9,8 @@ import 'package:hidi/features/main-screen/views/main_navigation_view.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/${MainNavigationView.initialTab}',
     debugLogDiagnostics: true,
+    initialLocation: '/${MainNavigationView.initialTab}',
 
     redirect: (context, state) {
       final isLoggIned = ref.read(authRepo).isLoggedIn;

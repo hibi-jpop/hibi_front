@@ -13,12 +13,15 @@ class PasswordView extends ConsumerStatefulWidget {
 }
 
 class _PasswordViewState extends ConsumerState<PasswordView> {
-  late final TextEditingController _passwordController =
+  late final TextEditingController _passwordController1 =
+      TextEditingController();
+  late final TextEditingController _passwordController2 =
       TextEditingController();
 
-  String _password = "";
+  String _password1 = "";
+  String _password2 = "";
   bool _isButtonDisable = true;
-  bool _isObscure = true;
+  bool _isObscure1 = true;
 
   @override
   void initState() {
@@ -27,16 +30,16 @@ class _PasswordViewState extends ConsumerState<PasswordView> {
 
   @override
   void dispose() {
-    _passwordController.dispose();
+    _passwordController1.dispose();
     super.dispose();
   }
 
   String? _isPasswordValid() {
     List<String> errors = [];
 
-    if (_password.isEmpty) return null;
+    if (_password1.isEmpty) return null;
 
-    if (_password.length < 8) {
+    if (_password1.length < 8) {
       errors.add("최소 8글자 이상");
     }
 
@@ -45,28 +48,34 @@ class _PasswordViewState extends ConsumerState<PasswordView> {
 
   void _toggleObscrueText() {
     setState(() {
-      _isObscure = !_isObscure;
+      _isObscure1 = !_isObscure1;
     });
+  }
+
+  void _onClearTap(TextEditingController controller) {
+    controller.clear();
+  }
+
+  bool _isSamePassword() {
+    return _password1 == _password2;
   }
 
   void _isButtonValid() {
     setState(() {
-      _password = _passwordController.text;
-      _isButtonDisable = _password.isEmpty || _isPasswordValid() != null;
+      _isButtonDisable =
+          _password1.isEmpty ||
+          _isPasswordValid() != null ||
+          !_isSamePassword();
     });
   }
 
   void _onSubmit() {
     final state = ref.read(signUpForm.notifier).state;
-    ref.read(signUpForm.notifier).state = {...state, "password": _password};
+    ref.read(signUpForm.notifier).state = {...state, "password": _password1};
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => NicknameView()),
     );
-  }
-
-  void _onClearTap() {
-    _passwordController.clear();
   }
 
   @override
@@ -79,9 +88,14 @@ class _PasswordViewState extends ConsumerState<PasswordView> {
           children: [
             Text("password"),
             TextField(
-              controller: _passwordController,
-              obscureText: _isObscure,
-              onChanged: (value) => _isButtonValid(),
+              controller: _passwordController1,
+              obscureText: _isObscure1,
+              onChanged: (value) {
+                setState(() {
+                  _password1 = value;
+                });
+                _isButtonValid();
+              },
               decoration: InputDecoration(
                 hintText: "password",
                 errorText: _isPasswordValid(),
@@ -89,15 +103,46 @@ class _PasswordViewState extends ConsumerState<PasswordView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     GestureDetector(
-                      onTap: _onClearTap,
+                      onTap: () => _onClearTap(_passwordController1),
                       child: const FaIcon(FontAwesomeIcons.circleXmark),
                     ),
                     GestureDetector(
                       onTap: _toggleObscrueText,
                       child:
-                          _isObscure
+                          _isObscure1
                               ? FaIcon(FontAwesomeIcons.eye)
                               : FaIcon(FontAwesomeIcons.eyeSlash),
+                    ),
+                  ],
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey.shade400),
+                ),
+              ),
+            ),
+
+            TextField(
+              controller: _passwordController2,
+              obscureText: true,
+              onChanged: (value) {
+                setState(() {
+                  _password2 = value;
+                });
+                _isButtonValid();
+              },
+              decoration: InputDecoration(
+                hintText: "repassword",
+
+                errorText:
+                    _isSamePassword() || _password2 == ""
+                        ? ""
+                        : "it is not correct each other.",
+                suffix: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () => _onClearTap(_passwordController2),
+                      child: const FaIcon(FontAwesomeIcons.circleXmark),
                     ),
                   ],
                 ),

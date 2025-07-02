@@ -26,7 +26,7 @@ class _MyPageViewState extends ConsumerState<MyPageView> {
   }
 
   void signOut(int id) async {
-    await ref.read(LoginProvider.notifier).SignOut(context, id);
+    await ref.read(loginProvider.notifier).signOut(context, id);
   }
 
   void reIssue() async {

@@ -6,10 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
-typedef TokenFunction = Future<void> Function(String token);
+typedef TokenFunction<T> = Future<T> Function(String token);
 
 class AuthenticationRepository {
-  final baseurl = '${dotenv.env["API_BASE_URL"]}/api/v1/auth';
+  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basepath = '/api/v1/auth';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   String? _accessToken;
 
@@ -20,67 +21,63 @@ class AuthenticationRepository {
   bool get isLoggedIn => _accessToken != null;
   String? get accessToken => _accessToken;
 
-  Future<void> postLocalSignup(
+  Future<bool> postLocalSignup(
     String email,
     String password,
     String nickname,
   ) async {
-    final url = "$baseurl/sign-up";
-    log("url : $url");
+    final uri = Uri.http(basehost, "$basepath/sign-up");
 
-    final Map<String, dynamic> data = {
+    final Map<String, dynamic> body = {
       "email": email,
       "password": password,
       "nickname": nickname,
     };
 
     final response = await http.post(
-      Uri.parse(url),
+      uri,
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode(data),
+      body: jsonEncode(body),
     );
 
+    log("${response.statusCode}");
+    final resBody = jsonDecode(response.body);
+    log("body : ${resBody}");
+
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseData = jsonDecode(response.body);
-      log('Response: $responseData');
+      return resBody["success"];
     } else {
-      log('Failed with status code: ${response.statusCode}');
-      log('Response: ${response.body}');
-      throw Exception('Failed to sign up.');
+      return false;
     }
   }
 
   Future<void> postSignin(String email, String password) async {
-    final url = "$baseurl/sign-in";
+    final uri = Uri.http(basehost, "$basepath/sign-in");
 
-    final Map<String, dynamic> data = {"email": email, "password": password};
-
+    final Map<String, dynamic> body = {"email": email, "password": password};
     final response = await http.post(
-      Uri.parse(url),
+      uri,
       headers: {'Content-Type': "application/json"},
-      body: jsonEncode(data),
+      body: jsonEncode(body),
     );
 
+    log("${response.statusCode}");
+    final resBody = jsonDecode(response.body);
+    log("body : ${resBody}");
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final data = jsonDecode(response.body)["data"];
-      log("$data");
-      log("tokens");
+      final data = resBody["data"];
       await tokenSaves(data["accessToken"], data["refreshToken"]);
       _accessToken = data["accessToken"];
-      log("test");
     }
   }
 
   Future<void> postSignOut(int uid) async {
-    final url = "$baseurl/sign-out?memberId=$uid";
-    log("accessToken : ${_accessToken}");
-    // final response = await http.post(
-    //   Uri.parse(url),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "Authorization": "Bearer $_accessToken",
-    //   },
-    // );
+    final Map<String, dynamic> queryParams = {"memberId": uid.toString()};
+
+    final uri = Uri.http(basehost, "$basepath/sign-out", queryParams);
+
+    await http.post(uri, headers: {"Content-Type": "application/json"});
     await tokensClear();
     // CommonRepos.reponsePrint(response);
   }
@@ -91,23 +88,69 @@ class AuthenticationRepository {
 
     log("old");
     log("${_accessToken}");
-    final url = "$baseurl/reissue?refreshToken=$_refreshToken";
+    final Map<String, dynamic> queryParams = {"refreshToken": _refreshToken};
+    final uri = Uri.http(basehost, "$basepath/reissue", queryParams);
 
     final response = await http.post(
-      Uri.parse(url),
+      uri,
       headers: {"Content-Type": "application/json"},
     );
+
+    log("${response.statusCode}");
+    final resBody = jsonDecode(response.body);
+    log("body : ${resBody}");
+
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final data = jsonDecode(response.body)["data"];
+      final data = jsonDecode(resBody)["data"];
       final accessToken = data["accessToken"];
 
       await _secureStorage.write(key: "accessToken", value: accessToken);
       _accessToken = accessToken;
       log("new");
       log("${_accessToken}");
-      return true;
+      return resBody["success"];
     }
     return false;
+  }
+
+  Future<bool> checkEmail(String email) async {
+    final Map<String, dynamic> queryParams = {"email": email};
+    final uri = Uri.http(basehost, "$basepath/check-email", queryParams);
+
+    final response = await http.get(
+      uri,
+      headers: {"Content-Type": "application/json"},
+    );
+
+    log("${response.statusCode}");
+    final resBody = jsonDecode(response.body);
+    log("body : ${resBody}");
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return resBody["success"];
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> checkNickname(String nickname) async {
+    final Map<String, dynamic> queryParams = {"nickname": nickname};
+    final uri = Uri.http(basehost, "$basepath/check-nickname", queryParams);
+
+    final response = await http.get(
+      uri,
+      headers: {"Content-Type": "application/json"},
+    );
+
+    log("${response.statusCode}");
+    final resBody = jsonDecode(response.body);
+    log("body : ${resBody}");
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return resBody["success"];
+    } else {
+      return false;
+    }
   }
 
   Future<void> tokenSaves(String accessToken, String refreshToken) async {
@@ -115,11 +158,9 @@ class AuthenticationRepository {
       _secureStorage.write(key: "accessToken", value: accessToken),
       _secureStorage.write(key: "refreshToken", value: refreshToken),
     ]);
-    log("finished");
   }
 
   Future<void> tokensClear() async {
-    log("test");
     await _secureStorage.deleteAll();
     _accessToken = null;
   }
@@ -136,21 +177,21 @@ class AuthenticationRepository {
     return exp < now;
   }
 
-  Future<void> requestWithRetry(TokenFunction request) async {
+  Future<T> requestWithRetry<T>(TokenFunction request) async {
     final accessToken = _accessToken;
     if (accessToken == null) {
       throw Exception("No access token.");
     }
     final isExpired = isAccessTokenExpired(accessToken);
     if (!isExpired) {
-      await request(accessToken);
+      return await request(accessToken);
     } else {
       await postReissue();
       final newaccessToken = _accessToken;
       if (newaccessToken == null) {
         throw Exception("No new accessToken.");
       } else {
-        await request(newaccessToken);
+        return await request(newaccessToken);
       }
     }
   }

@@ -17,7 +17,7 @@ class LoginViewmodel extends AsyncNotifier<void> {
     _authRepo = ref.read(authRepo);
   }
 
-  Future<void> Signin(BuildContext context) async {
+  Future<void> signin(BuildContext context) async {
     state = const AsyncValue.loading();
     final form = ref.read(loginForm);
     state = await AsyncValue.guard(() async {
@@ -31,7 +31,7 @@ class LoginViewmodel extends AsyncNotifier<void> {
     }
   }
 
-  Future<void> SignOut(BuildContext context, int uid) async {
+  Future<void> signOut(BuildContext context, int uid) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await _authRepo.postSignOut(uid);
@@ -47,6 +47,6 @@ class LoginViewmodel extends AsyncNotifier<void> {
 
 final loginForm = StateProvider((ref) => {});
 
-final LoginProvider = AsyncNotifierProvider<LoginViewmodel, void>(
+final loginProvider = AsyncNotifierProvider<LoginViewmodel, void>(
   () => LoginViewmodel(),
 );

@@ -9,28 +9,31 @@ import 'package:hidi/features/users/models/user.dart';
 import 'package:http/http.dart' as http;
 
 class UserRepository {
-  final baseurl = '${dotenv.env["API_BASE_URL"]}/api/v1/members/me';
+  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basepath = "/api/v1/members/me";
+
   Future<User> getCurrentUser(String accessToken) async {
-    final url = baseurl;
+    final uri = Uri.http(basehost, basepath);
 
     final response = await http.get(
-      Uri.parse(url),
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
       },
     );
+    log("${response.statusCode}");
     final data = jsonDecode(response.body)["data"];
-    log("${data}");
+    log("data : ${data}");
     final updateduser = User.fromJson(data);
     return updateduser;
   }
 
   Future<void> deleteCurrentUser(Ref ref, String accessToken) async {
     final _authRepo = ref.read(authRepo);
-    final url = baseurl;
+    final uri = Uri.http(basehost, basepath);
     final response = await http.delete(
-      Uri.parse(url),
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
@@ -38,7 +41,7 @@ class UserRepository {
     );
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      _authRepo.tokensClear();
+      await _authRepo.tokensClear();
     }
 
     CommonRepos.reponsePrint(response);
@@ -49,15 +52,16 @@ class UserRepository {
     String nickname,
     String password,
   ) async {
-    final url = baseurl;
-    Map<String, dynamic> json = {"nickname": nickname, "password": password};
+    final uri = Uri.http(basehost, basepath);
+
+    Map<String, dynamic> body = {"nickname": nickname, "password": password};
     final response = await http.patch(
-      Uri.parse(url),
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
       },
-      body: jsonEncode(json),
+      body: jsonEncode(body),
     );
 
     final data = jsonDecode(response.body)["data"];
