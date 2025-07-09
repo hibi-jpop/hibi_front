@@ -4,8 +4,12 @@ class User {
   final String nickname;
   final String roleType;
 
-  User({required this.id, required this.email, required this.nickname, required String roleType})
-    : roleType = "USER";
+  User({
+    required this.id,
+    required this.email,
+    required this.nickname,
+    required String roleType,
+  }) : roleType = "USER";
 
   User.empty()
     : id = 0,
@@ -22,12 +26,12 @@ class User {
     );
   }
 
-  User.fromJson(Map<String, dynamic> data)
-    : id = data['id'],
-      email = data['email'],
-      nickname = data["nickname"],
+  User.fromJson(Map<String, dynamic> json)
+    : id = json['id'],
+      email = json['email'],
+      nickname = json["nickname"],
       roleType = "USER";
-      // roleType = data["roleType"];
+  // roleType = json["roleType"];
 
   Map<String, dynamic> toJson() {
     return {
