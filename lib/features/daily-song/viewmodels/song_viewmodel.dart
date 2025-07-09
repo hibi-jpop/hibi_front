@@ -16,20 +16,12 @@ class SongViewmodel extends AsyncNotifier<Song> {
   Future<void> getSongById(int id) async {
     state = AsyncValue.loading();
     final song = await _songRepo.getSongById(id);
-    if (song != null) {
-      state = AsyncValue.data(song);
-    } else {
-      state = AsyncValue.data(Song.empty());
-    }
+    state = AsyncValue.data(song);
   }
 
   Future<void> getSongByDate(String date) async {
     state = AsyncValue.loading();
     final song = await _songRepo.getSongByDate(date);
-    if (song != null) {
-      state = AsyncValue.data(song);
-    } else {
-      state = AsyncValue.data(Song.empty());
-    }
+    state = AsyncValue.data(song);
   }
 }

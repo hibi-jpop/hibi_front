@@ -13,7 +13,7 @@ class SongRepository {
   final basepath = "/api/v1/songs";
 
   // user
-  Future<Song?> getSongById(int id) async {
+  Future<Song> getSongById(int id) async {
     final Map<String, dynamic> queryParams = {"id": id};
 
     final uri = Uri.http(basehost, basepath, queryParams);
@@ -36,7 +36,7 @@ class SongRepository {
     }
 
     log("Error :getSongById");
-    return null;
+    return Song.empty();
   }
 
   Future<List<Song>> getSongs() async {
@@ -62,7 +62,7 @@ class SongRepository {
   }
 
   //  날짜(date) 형식 yyyy-MM-dd
-  Future<Song?> getSongByDate(String date) async {
+  Future<Song> getSongByDate(String date) async {
     final Map<String, dynamic> queryParams = {"date": date};
 
     final uri = Uri.http(basehost, "$basepath/by-date", queryParams);
@@ -85,7 +85,7 @@ class SongRepository {
     }
 
     log("Error :getSongByDate");
-    return null;
+    return Song.empty();
   }
 
   Future<List<Song>> getSongsByMonthAndYear(int month, int year) async {
