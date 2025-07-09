@@ -27,8 +27,11 @@ class UserRepository {
     log("${response.statusCode}");
     final data = jsonDecode(response.body)["data"];
     log("data : ${data}");
-    final user = User.fromJson(data);
-    return user;
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final user = User.fromJson(data);
+      return user;
+    }
+    return null;
   }
 
   Future<void> deleteCurrentUser(Ref ref) async {
