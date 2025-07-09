@@ -87,6 +87,7 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
               ),
               TextField(
                 controller: _passwordController,
+                obscureText: _isObscure,
                 onChanged: (value) {
                   formData["password"] = value;
                   _isButtonValid();

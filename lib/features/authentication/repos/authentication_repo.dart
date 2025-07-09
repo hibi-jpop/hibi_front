@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hidi/features/users/models/user.dart';
+import 'package:hidi/features/users/repos/users_repos.dart';
 import 'package:http/http.dart' as http;
 
 typedef TokenFunction<T> = Future<T> Function(String token);
@@ -12,7 +14,9 @@ class AuthenticationRepository {
   final basehost = '${dotenv.env["API_BASE_URL"]}';
   final basepath = '/api/v1/auth';
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final UserRepository userRepo = UserRepository();
   String? _accessToken;
+  User? _user;
 
   Future<void> initToken() async {
     _accessToken = await _secureStorage.read(key: "accessToken");
@@ -20,6 +24,7 @@ class AuthenticationRepository {
 
   bool get isLoggedIn => _accessToken != null;
   String? get accessToken => _accessToken;
+  User? get user => _user;
 
   Future<bool> postLocalSignup(
     String email,
@@ -69,6 +74,7 @@ class AuthenticationRepository {
       final data = resBody["data"];
       await tokenSaves(data["accessToken"], data["refreshToken"]);
       _accessToken = data["accessToken"];
+      _user = await userRepo.getCurrentUser(_accessToken!);
     }
   }
 
@@ -114,6 +120,7 @@ class AuthenticationRepository {
   }
 
   Future<bool> checkEmail(String email) async {
+    log("checkEmail");
     final Map<String, dynamic> queryParams = {"email": email};
     final uri = Uri.http(basehost, "$basepath/check-email", queryParams);
 
@@ -121,7 +128,6 @@ class AuthenticationRepository {
       uri,
       headers: {"Content-Type": "application/json"},
     );
-
     log("${response.statusCode}");
     final resBody = jsonDecode(response.body);
     log("body : ${resBody}");
