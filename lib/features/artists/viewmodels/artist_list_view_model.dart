@@ -4,22 +4,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hidi/features/artists/models/artist_model.dart';
 import 'package:hidi/features/artists/repos/artist_repo.dart';
 
-class ArtistViewModel extends AsyncNotifier<Artist> {
+class ArtistListViewModel extends AsyncNotifier<List<Artist>> {
   late final ArtistRepository _artistRepo;
   @override
-  FutureOr<Artist> build() {
+  FutureOr<List<Artist>> build() {
     // TODO: implement build
     _artistRepo = ref.read(artistRepo);
     throw UnimplementedError();
   }
 
-  Future<void> getArtist(int id) async {
+  Future<void> getArtists() async {
     state = AsyncValue.loading();
-    final artist = await _artistRepo.getArtistById(id);
-    state = AsyncValue.data(artist);
+    final artists = await _artistRepo.getArtists();
+    state = AsyncValue.data(artists);
   }
 }
 
-final artistProvider = AsyncNotifierProvider<ArtistViewModel, Artist>(
-  () => ArtistViewModel(),
-);
+final artistsProvider =
+    AsyncNotifierProvider<ArtistListViewModel, List<Artist>>(
+      () => ArtistListViewModel(),
+    );
