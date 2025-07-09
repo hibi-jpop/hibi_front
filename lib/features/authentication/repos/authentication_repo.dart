@@ -185,7 +185,8 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final data = jsonDecode(resBody)["data"];
       final accessToken = data["accessToken"];
-
+      final refreshToken = data["refreshToken"];
+      await _secureStorage.write(key: "refreshToken", value: refreshToken);
       await _secureStorage.write(key: "accessToken", value: accessToken);
       return resBody["success"];
     }
