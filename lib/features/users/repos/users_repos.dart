@@ -25,8 +25,8 @@ class UserRepository {
     log("${response.statusCode}");
     final data = jsonDecode(response.body)["data"];
     log("data : ${data}");
-    final updateduser = User.fromJson(data);
-    return updateduser;
+    final user = User.fromJson(data);
+    return user;
   }
 
   Future<void> deleteCurrentUser(Ref ref, String accessToken) async {

@@ -21,11 +21,11 @@ class Artist {
     );
   }
 
-  Artist.fromJson(Map<String, dynamic> data)
-    : id = data['id'],
-      nameKor = data["nameKor"],
-      nameEng = data["nameEng"],
-      nameJp = data["nameJp"];
+  Artist.fromJson(Map<String, dynamic> json)
+    : id = json['id'],
+      nameKor = json["nameKor"],
+      nameEng = json["nameEng"],
+      nameJp = json["nameJp"];
 
   Map<String, dynamic> toJson() {
     return {"id": id, "nameKor": nameKor, "nameEng": nameEng, "nameJp": nameJp};

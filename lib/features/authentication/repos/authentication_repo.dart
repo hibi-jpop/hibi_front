@@ -52,6 +52,7 @@ class AuthenticationRepository {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return resBody["success"];
     } else {
+      log("Error: postLocalSignup");
       return false;
     }
   }
@@ -76,6 +77,7 @@ class AuthenticationRepository {
       _accessToken = data["accessToken"];
       _user = await userRepo.getCurrentUser(_accessToken!);
     }
+    log("Error: postSignin");
   }
 
   Future<void> postSignOut(int uid) async {
@@ -83,8 +85,15 @@ class AuthenticationRepository {
 
     final uri = Uri.http(basehost, "$basepath/sign-out", queryParams);
 
-    await http.post(uri, headers: {"Content-Type": "application/json"});
-    await tokensClear();
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+    );
+    if (response.statusCode <= 200 && response.statusCode > 300) {
+      await tokensClear();
+    }
+
+    log("Error: postSignOut");
     // CommonRepos.reponsePrint(response);
   }
 
@@ -116,6 +125,7 @@ class AuthenticationRepository {
       log("${_accessToken}");
       return resBody["success"];
     }
+    log("Error: postReissue");
     return false;
   }
 
@@ -135,6 +145,7 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return resBody["success"];
     } else {
+      log("Error: checkEmail");
       return false;
     }
   }
@@ -155,6 +166,7 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return resBody["success"];
     } else {
+      log("Error: checkNickname");
       return false;
     }
   }
