@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   final _authRepo = AuthenticationRepository();
-  await _authRepo.initToken();
+  await _authRepo.init();
   runApp(
     ProviderScope(
       overrides: [authRepo.overrideWithValue(_authRepo)],

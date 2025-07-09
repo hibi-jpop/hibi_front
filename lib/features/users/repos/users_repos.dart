@@ -12,15 +12,17 @@ class UserRepository {
   final basehost = '${dotenv.env["API_BASE_URL"]}';
   final basepath = "/api/v1/members/me";
 
-  Future<User> getCurrentUser(String accessToken) async {
+  Future<User?> getCurrentUser() async {
     final uri = Uri.http(basehost, basepath);
 
-    final response = await http.get(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $accessToken",
-      },
+    final response = await AuthenticationRepository.requestWithRetry(
+      (accessToken) => http.delete(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+      ),
     );
     log("${response.statusCode}");
     final data = jsonDecode(response.body)["data"];
@@ -29,43 +31,46 @@ class UserRepository {
     return user;
   }
 
-  Future<void> deleteCurrentUser(Ref ref, String accessToken) async {
-    final _authRepo = ref.read(authRepo);
+  Future<void> deleteCurrentUser(Ref ref) async {
     final uri = Uri.http(basehost, basepath);
-    final response = await http.delete(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $accessToken",
-      },
+    final response = await AuthenticationRepository.requestWithRetry(
+      (accessToken) => http.delete(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+      ),
     );
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      await _authRepo.tokensClear();
+      await AuthenticationRepository.tokensClear();
     }
 
     CommonRepos.reponsePrint(response);
   }
 
-  Future<void> patchCurrentUser(
-    String accessToken,
-    String nickname,
-    String password,
-  ) async {
+  Future<bool> patchCurrentUser(String nickname, String password) async {
     final uri = Uri.http(basehost, basepath);
 
     Map<String, dynamic> body = {"nickname": nickname, "password": password};
-    final response = await http.patch(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $accessToken",
-      },
-      body: jsonEncode(body),
+
+    final response = await AuthenticationRepository.requestWithRetry(
+      (accessToken) => http.patch(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+        body: jsonEncode(body),
+      ),
     );
 
     final data = jsonDecode(response.body)["data"];
-    log("${data}");
+    if (response.statusCode <= 200 && response.statusCode > 300) {
+      return data["success"];
+    }
+    return false;
   }
 }
 
