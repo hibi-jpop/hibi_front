@@ -2,23 +2,27 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hidi/features/artists/models/artist_model.dart';
+import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:http/http.dart' as http;
 
 class ArtistRepository {
   final basehost = "${dotenv.env["API_BASE_URL"]}";
   final basepath = "/api/v1/artists";
 
-  Future<Artist> getArtistById(String accessToken, int id) async {
+  Future<Artist> getArtistById(int id) async {
     final Map<String, dynamic> queryParams = {"id": id.toString()};
 
     final uri = Uri.http(basehost, basepath, queryParams);
-    final response = await http.get(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $accessToken",
-      },
+    final response = await AuthenticationRepository.requestWithRetry(
+      (accessToken) => http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+      ),
     );
     log("${response.statusCode}");
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -31,14 +35,16 @@ class ArtistRepository {
     return Artist.empty();
   }
 
-  Future<List<Artist>> getArtists(String accessToken) async {
+  Future<List<Artist>> getArtists() async {
     final uri = Uri.http(basehost, basepath);
-    final response = await http.get(
-      uri,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $accessToken",
-      },
+    final response = await AuthenticationRepository.requestWithRetry(
+      (accessToken) => http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+      ),
     );
     log("${response.statusCode}");
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -51,3 +57,5 @@ class ArtistRepository {
     return [];
   }
 }
+
+final artistRepo = Provider((ref) => ArtistRepository());
