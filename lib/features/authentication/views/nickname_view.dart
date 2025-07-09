@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hidi/constants/sizes.dart';
 import 'package:hidi/features/authentication/viewmodels/signup_view_model.dart';
+import 'package:hidi/features/authentication/views/login_view.dart';
 
 class NicknameView extends ConsumerStatefulWidget {
   const NicknameView({super.key});
@@ -43,11 +45,15 @@ class _NicknameViewState extends ConsumerState<NicknameView> {
   void _onSubmit() async {
     final state = ref.read(signUpForm.notifier).state;
     ref.read(signUpForm.notifier).state = {...state, "nickname": _nickname};
-
-    await ref.read(signUpProvider.notifier).signUp();
-    // if (mounted) {
-    //   context.go('/${MainNavigationView.initialTab}');
-    // }
+    final chk = await ref.read(signUpProvider.notifier).checkNickname();
+    if (chk) {
+      final signUpChk = await ref.read(signUpProvider.notifier).signUp();
+      if (signUpChk) {
+        if (mounted) {
+          context.go(LoginView.routeURL);
+        }
+      }
+    }
   }
 
   void _onClearTap() {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -46,14 +48,17 @@ class _EmailViewState extends ConsumerState<EmailView> {
     });
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
+    log("submit");
     final state = ref.read(signUpForm.notifier).state;
     ref.read(signUpForm.notifier).state = {...state, "email": _email};
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => PasswordView()),
-    );
+    final chk = await ref.read(signUpProvider.notifier).checkEmail();
+    if (chk) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PasswordView()),
+      );
+    }
   }
 
   void _onClearTap() {

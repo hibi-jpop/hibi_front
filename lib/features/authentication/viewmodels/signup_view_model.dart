@@ -11,16 +11,38 @@ class SignUpViewmodel extends AsyncNotifier<void> {
     _authRepo = ref.read(authRepo);
   }
 
-  Future<void> signUp() async {
+  Future<bool> signUp() async {
     state = const AsyncValue.loading();
     final form = ref.read(signUpForm);
+    bool chk = false;
     state = await AsyncValue.guard(() async {
-      await _authRepo.postLocalSignup(
+      chk = await _authRepo.postLocalSignup(
         form["email"],
         form["password"],
         form["nickname"],
       );
     });
+    return chk;
+  }
+
+  Future<bool> checkEmail() async {
+    state = const AsyncValue.loading();
+    final form = ref.read(signUpForm);
+    bool chk = false;
+    state = await AsyncValue.guard(() async {
+      chk = await _authRepo.checkEmail(form["email"]);
+    });
+    return chk;
+  }
+
+  Future<bool> checkNickname() async {
+    state = AsyncValue.loading();
+    final form = ref.read(signUpForm);
+    bool chk = false;
+    state = await AsyncValue.guard(() async {
+      chk = await _authRepo.checkNickname(form["nickname"]);
+    });
+    return chk;
   }
 }
 

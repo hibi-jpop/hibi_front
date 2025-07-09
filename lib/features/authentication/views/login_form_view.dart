@@ -17,7 +17,6 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
       TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Map<String, String> formData = {};
-  Map<String, dynamic> form = {};
   bool _isButtonDisable = false;
   bool _isObscure = true;
   @override
@@ -53,7 +52,7 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
       "email": formData["email"],
       "password": formData["password"],
     };
-    await ref.read(LoginProvider.notifier).login();
+    await ref.read(loginProvider.notifier).signin(context);
   }
 
   @override
@@ -88,6 +87,7 @@ class _LoginFormViewState extends ConsumerState<LoginFormView> {
               ),
               TextField(
                 controller: _passwordController,
+                obscureText: _isObscure,
                 onChanged: (value) {
                   formData["password"] = value;
                   _isButtonValid();

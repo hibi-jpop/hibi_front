@@ -1,34 +1,48 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:hidi/features/common/common_repos.dart';
+import 'package:hidi/features/users/models/user.dart';
 import 'package:http/http.dart' as http;
 
-class UsersRepos {
-  final baseurl = '${dotenv.env["API_BASE_URL"]}/api/vi/members/me';
+class UserRepository {
+  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basepath = "/api/v1/members/me";
 
-  Future<void> getCurrentUser(String accessToken) async {
-    final url = baseurl;
+  Future<User> getCurrentUser(String accessToken) async {
+    final uri = Uri.http(basehost, basepath);
 
     final response = await http.get(
-      Uri.parse(url),
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
       },
     );
-    CommonRepos.reponsePrint(response);
+    log("${response.statusCode}");
+    final data = jsonDecode(response.body)["data"];
+    log("data : ${data}");
+    final updateduser = User.fromJson(data);
+    return updateduser;
   }
 
-  Future<void> deleteCurrentUser(String accessToken) async {
-    final url = baseurl;
-    final response = await http.post(
-      Uri.parse(url),
+  Future<void> deleteCurrentUser(Ref ref, String accessToken) async {
+    final _authRepo = ref.read(authRepo);
+    final uri = Uri.http(basehost, basepath);
+    final response = await http.delete(
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
       },
     );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      await _authRepo.tokensClear();
+    }
 
     CommonRepos.reponsePrint(response);
   }
@@ -38,16 +52,21 @@ class UsersRepos {
     String nickname,
     String password,
   ) async {
-    final url = baseurl;
-    Map<String, String> data = {"nickname": nickname, "password": password};
+    final uri = Uri.http(basehost, basepath);
+
+    Map<String, dynamic> body = {"nickname": nickname, "password": password};
     final response = await http.patch(
-      Uri.parse(url),
+      uri,
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
       },
-      body: jsonEncode(data),
+      body: jsonEncode(body),
     );
-    CommonRepos.reponsePrint(response);
+
+    final data = jsonDecode(response.body)["data"];
+    log("${data}");
   }
 }
+
+final userRepo = Provider((ref) => UserRepository());

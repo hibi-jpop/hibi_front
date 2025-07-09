@@ -11,7 +11,6 @@ class CommonRepos {
     } else {
       log('Failed with status code: ${response.statusCode}');
       log('Response: ${response.body}');
-      throw Exception('Failed to sign up.');
     }
   }
 }
