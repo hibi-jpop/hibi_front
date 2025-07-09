@@ -37,7 +37,7 @@ class _UserProfileEditViewState extends ConsumerState<UserProfileEditView> {
   void _onSubmit() async {
     await ref
         .read(userProfileProvider.notifier)
-        .patchCurrentUser(formData["nickname"], formData["password"]);
+        .patchCurrentUser(context, formData["nickname"], formData["password"]);
   }
 
   @override

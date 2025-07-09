@@ -8,23 +8,30 @@ import 'package:hidi/features/users/models/user.dart';
 import 'package:hidi/features/users/repos/users_repos.dart';
 import 'package:http/http.dart' as http;
 
-typedef TokenFunction<T> = Future<T> Function(String token);
+typedef TokenFunction = Future<http.Response> Function(String token);
 
 class AuthenticationRepository {
   final basehost = '${dotenv.env["API_BASE_URL"]}';
   final basepath = '/api/v1/auth';
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   final UserRepository userRepo = UserRepository();
-  String? _accessToken;
   User? _user;
-
-  Future<void> initToken() async {
-    _accessToken = await _secureStorage.read(key: "accessToken");
-  }
-
-  bool get isLoggedIn => _accessToken != null;
-  String? get accessToken => _accessToken;
   User? get user => _user;
+  bool get isLoggedIn => user != null;
+
+  Future<void> init() async {
+    final accessToken = await _secureStorage.read(key: "accessToken");
+    if (accessToken != null) {
+      // Fetch user data if token exists
+      _user = await userRepo.getCurrentUser();
+      if (isLoggedIn) {
+        log("User restored: ${_user?.email}");
+      } else {
+        await tokensClear(); // Clear tokens if user fetch fails
+        _user = null;
+      }
+    }
+  }
 
   Future<bool> postLocalSignup(
     String email,
@@ -74,8 +81,9 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final data = resBody["data"];
       await tokenSaves(data["accessToken"], data["refreshToken"]);
-      _accessToken = data["accessToken"];
-      _user = await userRepo.getCurrentUser(_accessToken!);
+      // _user = await userRepo.getCurrentUser();
+      _user = User.empty();
+      log("${isLoggedIn}");
     }
     log("Error: postSignin");
   }
@@ -91,42 +99,11 @@ class AuthenticationRepository {
     );
     if (response.statusCode <= 200 && response.statusCode > 300) {
       await tokensClear();
+      _user = null;
     }
 
     log("Error: postSignOut");
     // CommonRepos.reponsePrint(response);
-  }
-
-  Future<bool> postReissue() async {
-    final _refreshToken = await _secureStorage.read(key: "refreshToken");
-    log("${_refreshToken}");
-
-    log("old");
-    log("${_accessToken}");
-    final Map<String, dynamic> queryParams = {"refreshToken": _refreshToken};
-    final uri = Uri.http(basehost, "$basepath/reissue", queryParams);
-
-    final response = await http.post(
-      uri,
-      headers: {"Content-Type": "application/json"},
-    );
-
-    log("${response.statusCode}");
-    final resBody = jsonDecode(response.body);
-    log("body : ${resBody}");
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      final data = jsonDecode(resBody)["data"];
-      final accessToken = data["accessToken"];
-
-      await _secureStorage.write(key: "accessToken", value: accessToken);
-      _accessToken = accessToken;
-      log("new");
-      log("${_accessToken}");
-      return resBody["success"];
-    }
-    log("Error: postReissue");
-    return false;
   }
 
   Future<bool> checkEmail(String email) async {
@@ -171,41 +148,62 @@ class AuthenticationRepository {
     }
   }
 
-  Future<void> tokenSaves(String accessToken, String refreshToken) async {
+  static Future<void> tokenSaves(
+    String accessToken,
+    String refreshToken,
+  ) async {
     await Future.wait([
       _secureStorage.write(key: "accessToken", value: accessToken),
       _secureStorage.write(key: "refreshToken", value: refreshToken),
     ]);
   }
 
-  Future<void> tokensClear() async {
+  static Future<void> tokensClear() async {
     await _secureStorage.deleteAll();
-    _accessToken = null;
   }
 
-  bool isAccessTokenExpired(String token) {
-    final parts = token.split(".");
-    if (parts.length != 3) return true;
+  static Future<bool> postReissue() async {
+    final _refreshToken = await _secureStorage.read(key: "refreshToken");
+    log("${_refreshToken}");
 
-    final payload = jsonDecode(
-      utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+    final Map<String, dynamic> queryParams = {"refreshToken": _refreshToken};
+    final uri = Uri.http(
+      '${dotenv.env["API_BASE_URL"]}',
+      "/api/v1/auth/reissue",
+      queryParams,
     );
-    final exp = payload["exp"] as int;
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    return exp < now;
+
+    final response = await http.post(
+      uri,
+      headers: {"Content-Type": "application/json"},
+    );
+
+    log("${response.statusCode}");
+    final resBody = jsonDecode(response.body);
+    log("body : ${resBody}");
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final data = jsonDecode(resBody)["data"];
+      final accessToken = data["accessToken"];
+
+      await _secureStorage.write(key: "accessToken", value: accessToken);
+      return resBody["success"];
+    }
+    log("Error: postReissue");
+    return false;
   }
 
-  Future<T> requestWithRetry<T>(TokenFunction request) async {
-    final accessToken = _accessToken;
+  static Future<http.Response> requestWithRetry(TokenFunction request) async {
+    final accessToken = await _secureStorage.read(key: "accessToken");
     if (accessToken == null) {
       throw Exception("No access token.");
     }
-    final isExpired = isAccessTokenExpired(accessToken);
-    if (!isExpired) {
-      return await request(accessToken);
+    final response = await request(accessToken);
+    if (response.statusCode != 401) {
+      return response;
     } else {
       await postReissue();
-      final newaccessToken = _accessToken;
+      final newaccessToken = await _secureStorage.read(key: "accessToken");
       if (newaccessToken == null) {
         throw Exception("No new accessToken.");
       } else {
@@ -215,6 +213,4 @@ class AuthenticationRepository {
   }
 }
 
-final authRepo = Provider<AuthenticationRepository>((ref) {
-  throw UnimplementedError();
-});
+final authRepo = Provider((ref) => AuthenticationRepository());

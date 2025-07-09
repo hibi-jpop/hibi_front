@@ -13,7 +13,7 @@ class SettingsView extends ConsumerWidget {
   }
 
   void reIssue(WidgetRef ref) async {
-    await ref.read(authRepo).postReissue();
+    await AuthenticationRepository.postReissue();
   }
 
   void deleteUser(BuildContext context, WidgetRef ref) async {

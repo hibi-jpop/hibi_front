@@ -17,19 +17,17 @@ class UserProfileViewModel extends AsyncNotifier<User> {
     _userRepo = ref.read(userRepo);
     _authRepo = ref.read(authRepo);
     if (_authRepo.isLoggedIn) {
-      final user = await _authRepo.requestWithRetry(
-        (accessToken) => _userRepo.getCurrentUser(accessToken),
-      );
-      return user;
+      final user = await _userRepo.getCurrentUser();
+      if (user != null) {
+        return user;
+      }
     }
     return User.empty();
   }
 
   Future<void> deleteCurrentUser(BuildContext context) async {
     state = AsyncValue.loading();
-    await _authRepo.requestWithRetry(
-      (accessToken) => _userRepo.deleteCurrentUser(ref, accessToken),
-    );
+    await _userRepo.deleteCurrentUser(ref);
     if (state.hasError) {
       log("${state.error}");
     } else {
@@ -37,17 +35,20 @@ class UserProfileViewModel extends AsyncNotifier<User> {
     }
   }
 
-  Future<void> patchCurrentUser(String nickname, String password) async {
+  Future<void> patchCurrentUser(
+    BuildContext context,
+    String nickname,
+    String password,
+  ) async {
     state = AsyncLoading();
+    final success = await _userRepo.patchCurrentUser(nickname, password);
     state = AsyncValue.data(state.value!.copywith(nickname: nickname));
-    await _authRepo.requestWithRetry(
-      (accessToken) =>
-          _userRepo.patchCurrentUser(accessToken, nickname, password),
-    );
+    if (success) {
+      context.pop();
+    }
   }
 }
 
-final userProfileProvider =
-    AsyncNotifierProvider.autoDispose<UserProfileViewModel, User>(
-      () => UserProfileViewModel(),
-    );
+final userProfileProvider = AsyncNotifierProvider<UserProfileViewModel, User>(
+  () => UserProfileViewModel(),
+);
