@@ -7,7 +7,6 @@ import 'package:hidi/features/artists/views/artist_view.dart';
 import 'package:hidi/features/daily-song/viewmodels/song_list_viewmodel.dart';
 import 'package:hidi/features/daily-song/viewmodels/song_viewmodel.dart';
 import 'package:hidi/features/posts/views/post_view.dart';
-import 'package:intl/intl.dart';
 
 class DailySongView extends ConsumerStatefulWidget {
   const DailySongView({super.key});
