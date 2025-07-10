@@ -1,11 +1,5 @@
 {
     "version" : 2,
-    "builds" : [
-        {
-            "src" : "lib/main.dart",
-            "use" : "@vercel/node"
-        }
-    ],
     "routes" : [
         {
             "src" : "/(.*)",
