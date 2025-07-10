@@ -76,6 +76,7 @@ class AuthenticationRepository {
     );
 
     log("${response.statusCode}");
+    print("${response.statusCode}");
     final resBody = jsonDecode(response.body);
     log("body : ${resBody}");
 
