@@ -87,7 +87,10 @@ class SongRepository {
   }
 
   Future<List<Song>> getSongsByMonthAndYear(int month, int year) async {
-    final Map<String, dynamic> queryParams = {"month": month, "year": year};
+    final Map<String, dynamic> queryParams = {
+      "month": month.toString(),
+      "year": year.toString(),
+    };
 
     final uri = Uri.http(basehost, "$basepath/by-month", queryParams);
     final response = await AuthenticationRepository.requestWithRetry(

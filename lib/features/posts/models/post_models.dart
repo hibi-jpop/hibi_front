@@ -49,7 +49,8 @@ class Post {
       bio = json['bio'],
       songUrl = json['songUrl'],
       postedAt = DateTime.parse(json['postedAt']),
-      artist = Artist.fromJson(json['artist']);
+      artist = Artist.empty();
+  // artist = Artist.fromJson(json['artist']);
 
   Map<String, dynamic> toJson() {
     return {

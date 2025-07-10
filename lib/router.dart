@@ -1,6 +1,4 @@
 import 'dart:developer';
-import 'dart:ffi';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hidi/features/artists/views/artist_view.dart';
