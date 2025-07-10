@@ -14,9 +14,7 @@ class SongRepository {
 
   // user
   Future<Song> getSongById(int id) async {
-    final Map<String, dynamic> queryParams = {"id": id};
-
-    final uri = Uri.http(basehost, basepath, queryParams);
+    final uri = Uri.http(basehost, "${basepath}/$id");
     final response = await AuthenticationRepository.requestWithRetry(
       (accessToken) => http.get(
         uri,
@@ -89,7 +87,10 @@ class SongRepository {
   }
 
   Future<List<Song>> getSongsByMonthAndYear(int month, int year) async {
-    final Map<String, dynamic> queryParams = {"month": month, "year": year};
+    final Map<String, dynamic> queryParams = {
+      "month": month.toString(),
+      "year": year.toString(),
+    };
 
     final uri = Uri.http(basehost, "$basepath/by-month", queryParams);
     final response = await AuthenticationRepository.requestWithRetry(

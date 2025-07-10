@@ -25,3 +25,7 @@ class SongViewmodel extends AsyncNotifier<Song> {
     state = AsyncValue.data(song);
   }
 }
+
+final songProvider = AsyncNotifierProvider<SongViewmodel, Song>(
+  () => SongViewmodel(),
+);

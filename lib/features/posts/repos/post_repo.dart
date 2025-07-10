@@ -2,17 +2,17 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hidi/features/artists/models/artist_model.dart';
 import 'package:hidi/features/authentication/repos/authentication_repo.dart';
+import 'package:hidi/features/posts/models/post_models.dart';
 import 'package:http/http.dart' as http;
 
-class ArtistRepository {
-  final basehost = "${dotenv.env["API_BASE_URL"]}";
-  final basepath = "/api/v1/artists";
+class PostRepository {
+  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basepath = "/api/v1/posts";
 
-  Future<Artist> getArtistById(int id) async {
+  Future<Post> getPost(int id) async {
     final uri = Uri.http(basehost, "${basepath}/$id");
+    log("${uri}");
     final response = await AuthenticationRepository.requestWithRetry(
       (accessToken) => http.get(
         uri,
@@ -22,19 +22,20 @@ class ArtistRepository {
         },
       ),
     );
+
     log("${response.statusCode}");
+    final data = jsonDecode(response.body)["data"];
+    log("data: ${data}");
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final data = jsonDecode(response.body)["data"];
-      log("data : ${data}");
-      final artist = Artist.fromJson(data);
-      return artist;
+      final post = Post.fromJson(data);
+      return Post.empty();
     } else {
-      log("Error: getArtistById");
-      return Artist.empty();
+      log("Error :get Artists");
+      return Post.empty();
     }
   }
 
-  Future<List<Artist>> getArtists() async {
+  Future<List<Post>> getPosts() async {
     final uri = Uri.http(basehost, basepath);
     final response = await AuthenticationRepository.requestWithRetry(
       (accessToken) => http.get(
@@ -49,13 +50,12 @@ class ArtistRepository {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final List<dynamic> data = jsonDecode(response.body)["data"];
       log("data : ${data}");
-      final artists = data.map((json) => Artist.fromJson(json)).toList();
-      return artists;
+      final posts = data.map((json) => Post.fromJson(json)).toList();
+      // TODO : test용 post로 변경ㅈ미
+      return [];
     } else {
       log("Error :get Artists");
       return [];
     }
   }
 }
-
-final artistRepo = Provider((ref) => ArtistRepository());

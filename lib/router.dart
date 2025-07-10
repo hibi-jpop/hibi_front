@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hidi/features/artists/views/artist_view.dart';
@@ -7,6 +6,7 @@ import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:hidi/features/authentication/views/login_view.dart';
 import 'package:hidi/features/authentication/views/sign_up_view.dart';
 import 'package:hidi/features/main-screen/views/main_navigation_view.dart';
+import 'package:hidi/features/posts/views/post_view.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -53,7 +53,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: ArtistView.routeName,
         builder: (context, state) {
           final String artistId = state.pathParameters["artistId"]!;
-          return ArtistView(artistId: artistId);
+          return ArtistView(artistId: int.parse(artistId));
+        },
+      ),
+      GoRoute(
+        path: PostView.routeURL,
+        name: PostView.routeName,
+        builder: (context, state) {
+          final String postId = state.pathParameters["postId"]!;
+          return PostView(postId: int.parse(postId));
         },
       ),
     ],
