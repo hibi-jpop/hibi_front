@@ -1,0 +1,19 @@
+{
+    "version" : 2,
+    "builds" : [
+        {
+            "src" : "lib/main.dart",
+            "use" : "@vercel/node"
+        }
+    ],
+    "routes" : [
+        {
+            "src" : "/(.*)",
+            "dest" : "lib/main.dart",
+            "method" : ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            "headers" : {
+                "Access-Control-Allow-Origin" : "*"
+            }
+        }
+    ]
+}
