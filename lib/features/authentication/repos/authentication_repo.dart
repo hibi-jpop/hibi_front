@@ -81,8 +81,7 @@ class AuthenticationRepository {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final data = resBody["data"];
       await tokenSaves(data["accessToken"], data["refreshToken"]);
-      // _user = await userRepo.getCurrentUser();
-      _user = User.empty();
+      _user = await userRepo.getCurrentUser();
       log("${isLoggedIn}");
     } else {
       log("Error: postSignin");
