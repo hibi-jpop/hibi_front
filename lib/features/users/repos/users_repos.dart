@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hidi/env.dart';
 import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:hidi/features/common/common_repos.dart';
 import 'package:hidi/features/users/models/user.dart';
 import 'package:http/http.dart' as http;
 
 class UserRepository {
-  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basehost = Env.basehost;
   final basepath = "/api/v1/members/me";
 
   Future<User?> getCurrentUser() async {

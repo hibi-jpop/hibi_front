@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +8,9 @@ import 'package:hidi/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
+  const apiBaseUrl = String.fromEnvironment('API_BASE_URL');
+  log('API Base URL: $apiBaseUrl');
+  // await dotenv.load();
   final _authRepo = AuthenticationRepository();
   await _authRepo.init();
   runApp(

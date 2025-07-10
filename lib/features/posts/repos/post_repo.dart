@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hidi/env.dart';
 import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:hidi/features/posts/models/post_models.dart';
 import 'package:http/http.dart' as http;
 
 class PostRepository {
-  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basehost = Env.basehost;
   final basepath = "/api/v1/posts";
 
   Future<Post> getPost(int id) async {

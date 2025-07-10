@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hidi/env.dart';
 import 'package:hidi/features/users/models/user.dart';
 import 'package:hidi/features/users/repos/users_repos.dart';
 import 'package:http/http.dart' as http;
@@ -11,8 +11,9 @@ import 'package:http/http.dart' as http;
 typedef TokenFunction = Future<http.Response> Function(String token);
 
 class AuthenticationRepository {
-  final basehost = '${dotenv.env["API_BASE_URL"]}';
+  final basehost = Env.basehost;
   final basepath = '/api/v1/auth';
+
   static final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   final UserRepository userRepo = UserRepository();
   User? _user;
@@ -169,7 +170,7 @@ class AuthenticationRepository {
 
     final Map<String, dynamic> queryParams = {"refreshToken": _refreshToken};
     final uri = Uri.http(
-      '${dotenv.env["API_BASE_URL"]}',
+      "${Env.basehost}",
       "/api/v1/auth/reissue",
       queryParams,
     );
