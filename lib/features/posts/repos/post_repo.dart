@@ -10,9 +10,9 @@ class PostRepository {
   final basehost = '${dotenv.env["API_BASE_URL"]}';
   final basepath = "/api/v1/posts";
 
-  Future<void> getPosts() async {
-    final uri = Uri.http(basehost, basepath);
-
+  Future<Post> getPost(int id) async {
+    final uri = Uri.http(basehost, "${basepath}/$id");
+    log("${uri}");
     final response = await AuthenticationRepository.requestWithRetry(
       (accessToken) => http.get(
         uri,
@@ -28,6 +28,34 @@ class PostRepository {
     log("data: ${data}");
     if (response.statusCode >= 200 && response.statusCode < 300) {
       final post = Post.fromJson(data);
+      return Post.empty();
+    } else {
+      log("Error :get Artists");
+      return Post.empty();
+    }
+  }
+
+  Future<List<Post>> getPosts() async {
+    final uri = Uri.http(basehost, basepath);
+    final response = await AuthenticationRepository.requestWithRetry(
+      (accessToken) => http.get(
+        uri,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+      ),
+    );
+    log("${response.statusCode}");
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      final List<dynamic> data = jsonDecode(response.body)["data"];
+      log("data : ${data}");
+      final posts = data.map((json) => Post.fromJson(json)).toList();
+      // TODO : test용 post로 변경ㅈ미
+      return [];
+    } else {
+      log("Error :get Artists");
+      return [];
     }
   }
 }

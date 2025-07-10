@@ -15,8 +15,8 @@ class PostListViewmodel extends AsyncNotifier<List<Post>> {
 
   Future<void> getPosts() async {
     state = AsyncValue.loading();
-    await _postRepo.getPosts();
-    state = AsyncValue.data([]);
+    final posts = await _postRepo.getPosts();
+    state = AsyncValue.data(posts);
   }
 }
 

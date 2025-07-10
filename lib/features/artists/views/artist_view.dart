@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ArtistView extends StatefulWidget {
   static const String routeName = 'artist';
   static const String routeURL = '/artist/:artistId';
-  final String artistId;
+  final int artistId;
 
   const ArtistView({super.key, required this.artistId});
 

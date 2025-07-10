@@ -12,9 +12,7 @@ class ArtistRepository {
   final basepath = "/api/v1/artists";
 
   Future<Artist> getArtistById(int id) async {
-    final Map<String, dynamic> queryParams = {"id": id.toString()};
-
-    final uri = Uri.http(basehost, basepath, queryParams);
+    final uri = Uri.http(basehost, "${basepath}/$id");
     final response = await AuthenticationRepository.requestWithRetry(
       (accessToken) => http.get(
         uri,
@@ -30,9 +28,10 @@ class ArtistRepository {
       log("data : ${data}");
       final artist = Artist.fromJson(data);
       return artist;
+    } else {
+      log("Error: getArtistById");
+      return Artist.empty();
     }
-    log("Error: getArtistById");
-    return Artist.empty();
   }
 
   Future<List<Artist>> getArtists() async {
@@ -52,9 +51,10 @@ class ArtistRepository {
       log("data : ${data}");
       final artists = data.map((json) => Artist.fromJson(json)).toList();
       return artists;
+    } else {
+      log("Error :get Artists");
+      return [];
     }
-    log("Error :get Artists");
-    return [];
   }
 }
 

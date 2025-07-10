@@ -84,8 +84,9 @@ class AuthenticationRepository {
       // _user = await userRepo.getCurrentUser();
       _user = User.empty();
       log("${isLoggedIn}");
+    } else {
+      log("Error: postSignin");
     }
-    log("Error: postSignin");
   }
 
   Future<void> postSignOut(int uid) async {
@@ -100,9 +101,10 @@ class AuthenticationRepository {
     if (response.statusCode <= 200 && response.statusCode > 300) {
       await tokensClear();
       _user = null;
+    } else {
+      log("Error: postSignOut");
     }
 
-    log("Error: postSignOut");
     // CommonRepos.reponsePrint(response);
   }
 
@@ -189,9 +191,10 @@ class AuthenticationRepository {
       await _secureStorage.write(key: "refreshToken", value: refreshToken);
       await _secureStorage.write(key: "accessToken", value: accessToken);
       return resBody["success"];
+    } else {
+      log("Error: postReissue");
+      return false;
     }
-    log("Error: postReissue");
-    return false;
   }
 
   static Future<http.Response> requestWithRetry(TokenFunction request) async {

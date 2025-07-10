@@ -28,10 +28,11 @@ class UserRepository {
     final data = jsonDecode(response.body)["data"];
     log("data : ${data}");
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      final user = User.fromJson(data);
-      return user;
+      // final user = User.fromJson(data);
+      return User.empty();
+    } else {
+      return null;
     }
-    return null;
   }
 
   Future<void> deleteCurrentUser(Ref ref) async {
@@ -72,8 +73,9 @@ class UserRepository {
     final data = jsonDecode(response.body)["data"];
     if (response.statusCode <= 200 && response.statusCode > 300) {
       return data["success"];
+    } else {
+      return false;
     }
-    return false;
   }
 }
 

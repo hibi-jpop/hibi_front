@@ -14,9 +14,7 @@ class SongRepository {
 
   // user
   Future<Song> getSongById(int id) async {
-    final Map<String, dynamic> queryParams = {"id": id};
-
-    final uri = Uri.http(basehost, basepath, queryParams);
+    final uri = Uri.http(basehost, "${basepath}/$id");
     final response = await AuthenticationRepository.requestWithRetry(
       (accessToken) => http.get(
         uri,
