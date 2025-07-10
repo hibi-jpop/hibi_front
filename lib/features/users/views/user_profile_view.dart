@@ -27,7 +27,8 @@ class _MyPageViewState extends ConsumerState<MyPageView> {
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      final maxScroll = 200.0; // The scroll distance to reach full opacity
+      final maxScroll = 50; // The scroll distance to reach full opacity
+
       final offset = _scrollController.offset;
       final newOpacity = (offset / maxScroll).clamp(0.0, 1.0);
       if (newOpacity != _appBarOpacity) {
@@ -65,10 +66,10 @@ class _MyPageViewState extends ConsumerState<MyPageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          SafeArea(
-            child: CustomScrollView(
+      body: SafeArea(
+        child: Stack(
+          children: [
+            CustomScrollView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
@@ -78,9 +79,9 @@ class _MyPageViewState extends ConsumerState<MyPageView> {
                 SliverFillRemaining(),
               ],
             ),
-          ),
-          _buildAppBar(),
-        ],
+            _buildAppBar(),
+          ],
+        ),
       ),
     );
   }
