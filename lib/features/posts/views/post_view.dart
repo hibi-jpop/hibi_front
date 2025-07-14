@@ -6,8 +6,8 @@ import 'package:hidi/features/posts/viewmodels/post_list_viewmodel.dart';
 import 'package:hidi/features/posts/viewmodels/post_viewmodel.dart';
 
 class PostView extends ConsumerStatefulWidget {
-  static const String routeName = 'post';
-  static const String routeURL = '/post/:postId';
+  static const String routeName = 'posts';
+  static const String routeURL = '/posts/:postId';
   final int postId;
   const PostView({super.key, required this.postId});
 
