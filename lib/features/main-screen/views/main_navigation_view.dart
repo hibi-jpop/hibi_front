@@ -39,10 +39,18 @@ class _MainNavigationViewState extends State<MainNavigationView> {
       });
     }
 
+    int _getdailySongId() {
+      //  dateTime으로 오늘 업로드된 음악을 가져온다.
+      return 1;
+    }
+
     return Scaffold(
       body: Stack(
         children: [
-          Offstage(offstage: _selectIndex != 0, child: DailySongView()),
+          Offstage(
+            offstage: _selectIndex != 0,
+            child: DailySongView(songId: _getdailySongId()),
+          ),
           Offstage(offstage: _selectIndex != 1, child: CalendarView()),
           Offstage(offstage: _selectIndex != 2, child: SearchView()),
           Offstage(offstage: _selectIndex != 3, child: FollowView()),

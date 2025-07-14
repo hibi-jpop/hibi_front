@@ -5,6 +5,7 @@ import 'package:hidi/features/artists/views/artist_view.dart';
 import 'package:hidi/features/authentication/repos/authentication_repo.dart';
 import 'package:hidi/features/authentication/views/login_view.dart';
 import 'package:hidi/features/authentication/views/sign_up_view.dart';
+import 'package:hidi/features/daily-song/views/daily_scong_view.dart';
 import 'package:hidi/features/main-screen/views/main_navigation_view.dart';
 import 'package:hidi/features/posts/views/post_view.dart';
 
@@ -54,6 +55,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final String artistId = state.pathParameters["artistId"]!;
           return ArtistView(artistId: int.parse(artistId));
+        },
+      ),
+      GoRoute(
+        path: DailySongView.routeURL,
+        name: DailySongView.routeName,
+        builder: (context, state) {
+          final String songId = state.pathParameters["songId"]!;
+          return ArtistView(artistId: int.parse(songId));
         },
       ),
       GoRoute(
