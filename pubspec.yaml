@@ -80,6 +80,8 @@ flutter:
   assets:
     # - .env
     - assets/images/hibi-unbackground.png
+    - assets/images/Samekosaba.jpg
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
